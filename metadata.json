@@ -1,0 +1,5 @@
+{
+  "name": "FloraGuide: AI Gardening Assistant",
+  "description": "Identify plants from photos and get expert care instructions using Gemini AI.",
+  "requestFramePermissions": ["camera", "microphone"]
+}

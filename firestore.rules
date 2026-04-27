@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: plants
+    // Document ID: {plantId}
+    // Fields:
+    //   - id: string (required)
+    //   - uid: string (required, must match auth.uid)
+    //   - name: string (required, 1-100 chars)
+    //   - scientificName: string (optional)
+    //   - plantingDate: string (required, ISO date format)
+    //   - reminders: map (required)
+    //     - watering: int
+    //     - fertilizing: int
+    //     - pestControl: int
+    //   - lastWatered: string (optional)
+    //   - lastFertilized: string (optional)
+    //   - lastPestControl: string (optional)
+    //   - image: string (optional, URL)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.uid;
+    }
+    function isValidPlant(data) {
+      return data.keys().hasAll(['id', 'uid', 'name', 'plantingDate', 'reminders']) &&
+             data.uid == request.auth.uid &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+             data.plantingDate is string &&
+             data.reminders is map &&
+             data.reminders.watering is int &&
+             data.reminders.fertilizing is int &&
+             data.reminders.pestControl is int;
+    }
+
+    match /plants/{plantId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && isValidPlant(request.resource.data);
+      allow update: if isDocOwner() && isValidPlant(request.resource.data) && 
+                      request.resource.data.uid == resource.data.uid;
+      allow delete: if isDocOwner();
+    }
+    
+    match /test/connection {
+      allow read: if true;
+    }
+  }
+}

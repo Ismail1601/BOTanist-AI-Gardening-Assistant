@@ -1,0 +1,35 @@
+{
+  "entities": {
+    "GardenPlant": {
+      "title": "GardenPlant",
+      "description": "A plant in the user's digital garden",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "uid": { "type": "string", "description": "The owner's user ID" },
+        "name": { "type": "string" },
+        "scientificName": { "type": "string" },
+        "plantingDate": { "type": "string", "format": "date" },
+        "reminders": {
+          "type": "object",
+          "properties": {
+            "watering": { "type": "integer" },
+            "fertilizing": { "type": "integer" },
+            "pestControl": { "type": "integer" }
+          }
+        },
+        "lastWatered": { "type": "string", "format": "date" },
+        "lastFertilized": { "type": "string", "format": "date" },
+        "lastPestControl": { "type": "string", "format": "date" },
+        "image": { "type": "string" }
+      },
+      "required": ["id", "uid", "name", "plantingDate", "reminders"]
+    }
+  },
+  "firestore": {
+    "/plants/{plantId}": {
+      "schema": "GardenPlant",
+      "description": "Collection of plants in users' gardens"
+    }
+  }
+}
