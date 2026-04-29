@@ -65,7 +65,8 @@ import {
 } from './firebase';
 
 // Initialize Gemini
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 enum OperationType {
   CREATE = 'create',
@@ -1106,6 +1107,13 @@ export default function App() {
             )}
           </div>
         </div>
+        
+        {/* API Key Missing Warning */}
+        {!GEMINI_API_KEY && (
+          <div className="bg-amber-600 text-white px-4 py-2 text-center text-xs font-bold uppercase tracking-wider">
+            ⚠️ Gemini API Key is missing. Set GEMINI_API_KEY in your deployment environment variables.
+          </div>
+        )}
         
         {/* Auth Error Banner */}
         <AnimatePresence>
