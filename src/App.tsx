@@ -415,8 +415,10 @@ export default function App() {
         console.warn("Popup request was cancelled.");
       } else if (err.code === 'auth/popup-closed-by-user') {
         setAuthError("Sign-in was cancelled. Please try again.");
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setAuthError(`This domain is not authorized for sign-in. If you deployed to a new domain (like Vercel), you must add "${window.location.hostname}" to the "Authorized domains" list in your Firebase Console (Authentication > Settings).`);
       } else {
-        setAuthError("An unexpected error occurred during sign-in. Please try again or open the app in a new tab.");
+        setAuthError(`Sign-in failed: ${err.message || 'An unexpected error occurred'}. Please try again or open the app in a new tab.`);
       }
     } finally {
       setIsSigningIn(false);
