@@ -65,7 +65,7 @@ import {
 } from './firebase';
 
 // Initialize Gemini
-const GEMINI_API_KEY = (import.meta as any).env.VITE_GEMINI_API_KEY || (process.env as any).GEMINI_API_KEY || 'AIzaSyBH3qXeV5dEQj8hXITOudGInzmK0SNKBpA';
+const GEMINI_API_KEY = (import.meta as any).env.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' ? (process as any).env.GEMINI_API_KEY : '') || 'AIzaSyBH3qXeV5dEQj8hXITOudGInzmK0SNKBpA';
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 enum OperationType {
