@@ -65,7 +65,7 @@ import {
 } from './firebase';
 
 // Initialize Gemini
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const GEMINI_API_KEY = (import.meta as any).env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || 'AIzaSyBH3qXeV5dEQj8hXITOudGInzmK0SNKBpA';
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 enum OperationType {
@@ -464,7 +464,7 @@ export default function App() {
     setPlayingMessageIndex(index);
     try {
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash-preview-tts",
+        model: "gemini-2.0-flash",
         contents: [{ parts: [{ text }] }],
         config: {
           responseModalities: [Modality.AUDIO],
@@ -551,7 +551,7 @@ export default function App() {
       processor.connect(audioContext.destination);
 
       const session = await ai.live.connect({
-        model: "gemini-3.1-flash-live-preview",
+        model: "gemini-2.0-flash",
         config: {
           responseModalities: [Modality.AUDIO],
           speechConfig: {
@@ -691,7 +691,7 @@ export default function App() {
 
     try {
       const base64Data = base64Image.split(',')[1];
-      const modelName = thinkingMode ? "gemini-3.1-pro-preview" : (fastMode ? "gemini-3.1-flash-lite-preview" : "gemini-3.1-pro-preview");
+      const modelName = thinkingMode ? "gemini-1.5-pro" : (fastMode ? "gemini-2.0-flash-lite-preview-02-05" : "gemini-1.5-pro");
       
       const response = await ai.models.generateContent({
         model: modelName,
@@ -746,7 +746,7 @@ export default function App() {
 
     try {
       const base64Data = base64Image.split(',')[1];
-      const modelName = thinkingMode ? "gemini-3.1-pro-preview" : (fastMode ? "gemini-3.1-flash-lite-preview" : "gemini-3.1-pro-preview");
+      const modelName = thinkingMode ? "gemini-1.5-pro" : (fastMode ? "gemini-2.0-flash-lite-preview-02-05" : "gemini-1.5-pro");
       
       const response = await ai.models.generateContent({
         model: modelName,
@@ -804,7 +804,7 @@ export default function App() {
       
       // Step 1: Analyze Space
       const analysisResponse = await ai.models.generateContent({
-        model: "gemini-3.1-pro-preview",
+        model: "gemini-1.5-pro",
         contents: {
           parts: [
             { inlineData: { mimeType: "image/jpeg", data: base64Data } },
@@ -867,7 +867,7 @@ export default function App() {
       - The final result must look like a real, unedited photograph from an interior design magazine.`;
 
       const generationResponse = await ai.models.generateContent({
-        model: "gemini-2.5-flash-image",
+        model: "gemini-2.0-flash",
         contents: {
           parts: [
             { inlineData: { mimeType: "image/jpeg", data: base64Data } },
@@ -908,7 +908,7 @@ export default function App() {
 
   // Context-aware Chat Initialization
   useEffect(() => {
-    const chatModel = fastMode ? "gemini-3.1-flash-lite-preview" : "gemini-3-flash-preview";
+    const chatModel = fastMode ? "gemini-2.0-flash-lite-preview-02-05" : "gemini-2.0-flash";
     
     let context = `You are BOTanist, a friendly, expert AI gardening assistant. 
     Your personality is warm, encouraging, and professional. Use natural language, avoid being robotic.
