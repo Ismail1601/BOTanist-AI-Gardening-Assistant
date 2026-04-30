@@ -65,7 +65,7 @@ import {
 } from './firebase';
 
 // Initialize Gemini
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyBH3qXeV5dEQj8hXITOudGInzmK0SNKBpA';
+const GEMINI_API_KEY = (import.meta as any).env.VITE_GEMINI_API_KEY || (process.env as any).GEMINI_API_KEY || 'AIzaSyBH3qXeV5dEQj8hXITOudGInzmK0SNKBpA';
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
 enum OperationType {
@@ -852,19 +852,11 @@ export default function App() {
       }
 
       // Step 2: Generate Design
-      const editPrompt = `This is a professional architectural photograph of a ${analysis.type}. 
-      The environment has ${analysis.lighting} lighting.
-      
-      TASK: Enhance this space by adding highly realistic, high-definition plants: ${analysis.suggestedPlants.join(', ')}.
-      PLACEMENT: Position them naturally in these specific spots: ${analysis.spots.join(', ')}.
-      
-      REALISM REQUIREMENTS:
-      - Maintain the original perspective, scale, and architectural details perfectly.
-      - Plants must have realistic shadows that match the ${analysis.lighting} light source.
-      - Leaves should have subsurface scattering and detailed textures.
-      - Pots should match the aesthetic of the room and have realistic soil.
-      - Ensure the plants interact with the ambient light and reflections in the room.
-      - The final result must look like a real, unedited photograph from an interior design magazine.`;
+      const editPrompt = `Interior design enhancement: Add realistic, beautiful houseplants to this ${analysis.type}. 
+      Target plants: ${analysis.suggestedPlants.join(', ')}.
+      Placement: Naturally in ${analysis.spots.join(', ')}.
+      Lighting: Ensure shadows and reflections match the ${analysis.lighting} environment.
+      Style: Professional architectural photography, high definition, photorealistic.`;
 
       const generationResponse = await ai.models.generateContent({
         model: "gemini-2.5-flash-image",
@@ -896,11 +888,15 @@ export default function App() {
           analysis: analysis
         });
       } else {
-        setDesignError("Failed to generate the design image. Please try again.");
+        setDesignError("The AI was unable to generate a visual for this space. The analysis was successful, but the image generation step timed out or was restricted. Please try a different photo or check your quota.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Design generation failed:", err);
-      setDesignError("An error occurred while designing your space. Please try again.");
+      if (err.message?.includes('429') || err.message?.toLowerCase().includes('quota')) {
+        setDesignError("AI service limit reached. This usually happens on free plans after multiple requests. Please wait a few minutes and try again.");
+      } else {
+        setDesignError("An error occurred while designing your space. Please ensure you have a stable connection and try again.");
+      }
     } finally {
       setIsDesigning(false);
     }

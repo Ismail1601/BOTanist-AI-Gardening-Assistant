@@ -8,7 +8,20 @@ import {
   onAuthStateChanged, 
   User 
 } from 'firebase/auth';
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, onSnapshot, deleteDoc, updateDoc, getDocFromServer } from 'firebase/firestore';
+import { 
+  initializeFirestore, 
+  collection, 
+  doc, 
+  setDoc, 
+  getDoc, 
+  getDocs, 
+  query, 
+  where, 
+  onSnapshot, 
+  deleteDoc, 
+  updateDoc, 
+  getDocFromServer 
+} from 'firebase/firestore';
 import firebaseConfigPlaceholder from '../firebase-applet-config.json';
 
 // Support environment variables for production deployments (like Vercel)
@@ -31,20 +44,24 @@ export const auth = initializeAuth(app, {
   popupRedirectResolver: browserPopupRedirectResolver,
 });
 
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+// Initialize Firestore with settings to improve connectivity in restrictive environments
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+  experimentalAutoDetectLongPolling: true,
+}, firebaseConfig.firestoreDatabaseId);
+
 export const googleProvider = new GoogleAuthProvider();
 
 export { signInWithPopup, onAuthStateChanged, collection, doc, setDoc, getDoc, getDocs, query, where, onSnapshot, deleteDoc, updateDoc };
 export type { User };
 
-// Test connection
-async function testConnection() {
-  try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error("Please check your Firebase configuration. The client appears to be offline.");
+// Silent connection check
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    try {
+      await getDocFromServer(doc(db, 'test', 'connection'));
+    } catch (e) {
+      // Ignore initial connection warming errors
     }
   }
-}
-testConnection();
+});
